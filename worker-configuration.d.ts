@@ -9,7 +9,11 @@ declare namespace Cloudflare {
 		ASSETS: Fetcher;
 	}
 }
-interface CloudflareBindings extends Cloudflare.Env {}
+interface CloudflareBindings extends Cloudflare.Env {
+    DATABASE_URL: string
+    JWT_SECRET: string
+    ENVIRONMENT: string
+}
 
 // Begin runtime types
 /*! *****************************************************************************

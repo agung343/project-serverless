@@ -1,13 +1,23 @@
-import { eq, and} from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { sign } from "hono/jwt";
-import { db } from "../db";
+import { connectDB } from "../db";
 import { users, type User } from "../db/schema/users";
 import { tenants } from "../db/schema/tenants";
 import { verifyPassword } from "../lib/crypto";
 import { HttpError } from "../middlewares/HttpError";
 
 export class AuthService {
+  static async tenant(db: ReturnType<typeof connectDB>, tenant: string) {
+    const existingTenant = await db.query.tenants.findFirst({
+      where: eq(tenants.name, tenant),
+    });
+    if (!existingTenant) {
+      throw new HttpError(404, "Tenant no found");
+    }
+  }
+
   static async login(
+    db: ReturnType<typeof connectDB>,
     payload: Pick<User, "username" | "password">,
     tenant: string
   ) {

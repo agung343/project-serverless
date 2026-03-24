@@ -1,15 +1,18 @@
 import { eq } from "drizzle-orm";
-import { db } from "../db";
+import { connectDB } from "../db";
 import { tenants, type NewTenant } from "../db/schema/tenants";
 import { users, type NewUser } from "../db/schema/users";
 import { hashPassword } from "../lib/crypto";
 import { HttpError } from "../middlewares/HttpError";
 
 export class TenantService {
-  static async registerTenantAndOwner(input: {
-    tenant: Omit<NewTenant, "id" | "createdAt" | "updatedAt">;
-    owner: Pick<NewUser, "username" | "password">;
-  }) {
+  static async registerTenantAndOwner(
+    db: ReturnType<typeof connectDB>,
+    input: {
+      tenant: Omit<NewTenant, "id" | "createdAt" | "updatedAt">;
+      owner: Pick<NewUser, "username" | "password">;
+    }
+  ) {
     const existingTenant = await db.query.tenants.findFirst({
       where: eq(tenants.email, input.tenant.email),
     });

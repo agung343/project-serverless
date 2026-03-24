@@ -1,19 +1,23 @@
-import { config } from "dotenv"
-import { drizzle } from "drizzle-orm/neon-serverless"
-import { neon, Pool } from "@neondatabase/serverless"
+import { drizzle } from "drizzle-orm/neon-http"
+import { neon} from "@neondatabase/serverless"
 
 import * as tenantSchema from "./db/schema/tenants"
 import * as userSchema from "./db/schema/users"
 import * as invoicePrefixSchema from "./db/schema/invoiceCounters";
-
-config({path: ".env.local"})
+import * as categorySchema from "./db/schema/categories"
+import * as productSchema from "./db/schema/products"
 
 const schema = {
     ...tenantSchema,
     ...userSchema,
-    ...invoicePrefixSchema
+    ...invoicePrefixSchema,
+    ...categorySchema,
+    ...productSchema,
 }
 
-const pool = new Pool({connectionString: process.env.DATABASE_URL!})
-export const db = drizzle(pool, {schema})
+export const connectDB = (connectionString: string) => {
+    const sql = neon(connectionString)
+    return drizzle(sql, {schema})
+}
 
+export type DbClient = ReturnType<typeof connectDB>

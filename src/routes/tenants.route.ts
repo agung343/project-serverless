@@ -3,6 +3,7 @@ import { validator } from "hono/validator";
 import { TenantService } from "../services/tenant.service";
 import { HttpError } from "../middlewares/HttpError";
 import { registerTenantSchema } from "../validators/index";
+import { connectDB } from "../db";
 
 const tenants = createApp();
 
@@ -17,10 +18,11 @@ tenants.post(
     return parsed.data;
   }),
   async (c) => {
+    const db = connectDB(c.env.DATABASE_URL);
     try {
       const body = c.req.valid("json");
 
-      const result = await TenantService.registerTenantAndOwner({
+      const result = await TenantService.registerTenantAndOwner(db, {
         tenant: {
           name: body.name,
           email: body.email,
@@ -42,7 +44,7 @@ tenants.post(
         },
         201
       );
-    } catch (error:any) {
+    } catch (error: any) {
       if (error instanceof HttpError) {
         throw error;
       }
@@ -60,7 +62,7 @@ tenants.post(
       }
 
       throw new HttpError(500, "Something went wrong", {
-        error: error.message
+        error: error.message,
       });
     }
   }

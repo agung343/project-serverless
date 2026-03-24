@@ -1,17 +1,19 @@
 import dotenv from "dotenv"
-import { createApp } from "./lib/createApp";
+import { Hono } from "hono";
 import { cors } from "hono/cors"
 import { HttpError } from "./middlewares/HttpError";
 
 import tenants from "./routes/tenants.route"
 import auth from "./routes/auth.route";
 import users from "./routes/users.route";
+import inventory from "./routes/inventory.route"
 
 dotenv.config()
-const app = createApp()
+const app = new Hono<{Bindings: CloudflareBindings}>()
 
 app.use("*", cors({
   origin: "http://localhost:3000",
+  
   credentials: true
 }))
 
@@ -26,12 +28,13 @@ app.get("/message", (c) => {
 app.route("/tenants", tenants)
 app.route("/auth", auth)
 app.route("/users", users)
+app.route("/inventory", inventory)
 
 app.onError((err, c) => {
   if (err instanceof HttpError) {
     return c.json(
       {message: err.message,
-        detail: err.details
+        details: err.details
       },
       err.statusCode
     )

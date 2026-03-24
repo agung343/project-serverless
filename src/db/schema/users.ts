@@ -21,7 +21,7 @@ export const users = pgTable("users", {
     tenantId: text("tenant_id").notNull().references(() => tenants.id)
 }, (table) => [
     unique().on(table.tenantId, table.username),
-    index("tenant_index").on(table.id)
+    index("users_tenant_idx").on(table.id)
 ])
 
 export const userRelation = relations(users, ({one}) => ({
@@ -32,4 +32,4 @@ export const userRelation = relations(users, ({one}) => ({
 }))
 
 export type User = typeof users.$inferSelect;
-export type NewUser = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;

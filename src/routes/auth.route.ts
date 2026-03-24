@@ -1,13 +1,54 @@
 import { createApp } from "../lib/createApp";
 import { validator } from "hono/validator";
 import { verifyToken } from "../middlewares/verifyToken";
-import { verifyRole } from "../middlewares/verifyRole";
 import { AuthService } from "../services/auth.service";
 import { LoginSchema } from "../validators";
 import { HttpError } from "../middlewares/HttpError";
 import { setCookie, deleteCookie } from "hono/cookie";
+import { connectDB } from "../db";
 
 const auth = createApp();
+
+auth.get("/me", verifyToken, async (c) => {
+  try {
+    const user = c.get("user");
+
+    return c.json(
+      {
+        user: {
+          tenandId: user.tenantId,
+          userId: user.userId,
+          username: user.username,
+          role: user.role,
+        },
+      },
+      200
+    );
+  } catch (error: any) {
+    if (error instanceof HttpError) throw error;
+
+    throw new HttpError(500, "Something went wrong", { error: error.message });
+  }
+});
+
+auth.get("/:tenant", async (c) => {
+  const tenant = c.req.param("tenant");
+  const db = connectDB(c.env.DATABASE_URL);
+  try {
+    await AuthService.tenant(db, tenant);
+
+    return c.json(
+      {
+        existed: true,
+      },
+      200
+    );
+  } catch (error: any) {
+    if (error instanceof HttpError) throw error;
+
+    throw new HttpError(500, "Something went wrong", { error: error.message });
+  }
+});
 
 auth.post("/logout", async (c) => {
   deleteCookie(c, "token");
@@ -32,10 +73,12 @@ auth.post(
   }),
   async (c) => {
     const tenant = c.req.param("tenant");
+    const db = connectDB(c.env.DATABASE_URL);
     try {
       const body = c.req.valid("json");
 
       const result = await AuthService.login(
+        db,
         {
           username: body.username,
           password: body.password,
@@ -62,27 +105,5 @@ auth.post(
     }
   }
 );
-
-auth.get("/me", verifyToken, async (c) => {
-  try {
-    const user = c.get("user");
-
-    return c.json(
-      {
-        user: {
-          tenandId: user.tenantId,
-          userId: user.userId,
-          username: user.username,
-          role: user.role,
-        },
-      },
-      200
-    );
-  } catch (error: any) {
-    if (error instanceof HttpError) throw error;
-
-    throw new HttpError(500, "Something went wrong", { error: error.message });
-  }
-});
 
 export default auth;
