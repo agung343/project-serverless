@@ -1,5 +1,8 @@
-import { drizzle } from "drizzle-orm/neon-http"
-import { neon} from "@neondatabase/serverless"
+// import { drizzle } from "drizzle-orm/neon-http"
+// import { neon} from "@neondatabase/serverless"
+
+import { drizzle } from "drizzle-orm/neon-serverless";
+import { Pool } from "@neondatabase/serverless";
 
 import * as tenantSchema from "./db/schema/tenants"
 import * as userSchema from "./db/schema/users"
@@ -15,9 +18,15 @@ const schema = {
     ...productSchema,
 }
 
+
+// export const connectDB = (connectionString: string) => {
+//     const sql = neon(connectionString)
+//     return drizzle(sql, {schema})
+// }
+
 export const connectDB = (connectionString: string) => {
-    const sql = neon(connectionString)
-    return drizzle(sql, {schema})
+    const pool = new Pool({connectionString})
+    return drizzle(pool, {schema})
 }
 
 export type DbClient = ReturnType<typeof connectDB>
