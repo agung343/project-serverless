@@ -29,6 +29,13 @@
       "when": 1774227211976,
       "tag": "0003_funny_mercury",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1774409116893,
+      "tag": "0004_rapid_prodigy",
+      "breakpoints": true
     }
   ]
 }
