@@ -9,6 +9,7 @@ import * as userSchema from "./db/schema/users"
 import * as invoicePrefixSchema from "./db/schema/invoiceCounters";
 import * as categorySchema from "./db/schema/categories"
 import * as productSchema from "./db/schema/products"
+import * as unitSchema from "./db/schema/units"
 
 const schema = {
     ...tenantSchema,
@@ -16,6 +17,7 @@ const schema = {
     ...invoicePrefixSchema,
     ...categorySchema,
     ...productSchema,
+    ...unitSchema
 }
 
 

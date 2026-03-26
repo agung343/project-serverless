@@ -3,6 +3,7 @@ import { createId } from "@paralleldrive/cuid2";
 import { relations, sql } from "drizzle-orm";
 import { categories } from "./categories";
 import { tenants } from "./tenants";
+import { units } from "./units";
 
 export const products = pgTable("products", {
     id: text("id").primaryKey().$defaultFn(createId),
@@ -16,6 +17,7 @@ export const products = pgTable("products", {
     description: text("description"),
     categoryId: text("category_id").notNull().references(() => categories.id),
     tenantId: text("tenant_id").notNull().references(() => tenants.id, {onDelete: "cascade"}),
+    unitId: integer("unit_id").references(() => units.id),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull()
 }, (table) => [
@@ -42,6 +44,10 @@ export const productsRelations = relations(products, ({one}) => ({
     tenant: one(tenants, {
         fields: [products.tenantId],
         references: [tenants.id]
+    }),
+    unit: one(units, {
+        fields: [products.unitId],
+        references: [units.id]
     })
 }))
 
