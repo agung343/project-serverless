@@ -10,6 +10,7 @@ import * as invoicePrefixSchema from "./db/schema/invoiceCounters";
 import * as categorySchema from "./db/schema/categories"
 import * as productSchema from "./db/schema/products"
 import * as unitSchema from "./db/schema/units"
+import * as expenseOperationalSchema from "./db/schema/expense-operational"
 
 const schema = {
     ...tenantSchema,
@@ -17,7 +18,8 @@ const schema = {
     ...invoicePrefixSchema,
     ...categorySchema,
     ...productSchema,
-    ...unitSchema
+    ...unitSchema,
+    ...expenseOperationalSchema
 }
 
 
