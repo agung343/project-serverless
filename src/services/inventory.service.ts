@@ -38,21 +38,21 @@ export class InventoryService {
       const newSlug = slugify(payload.name, { lower: true });
 
       const [newCategory] = await db
-      .insert(categories)
-      .values({
-        ...payload,
-        slug: newSlug,
-        tenantId,
-      })
-      .returning();
+        .insert(categories)
+        .values({
+          ...payload,
+          slug: newSlug,
+          tenantId,
+        })
+        .returning();
 
       return {
         category: newCategory.name,
       };
-    } catch(error) {
+    } catch (error) {
       if (isDbError(error) && error.code === "23505") {
         if (error.constraint === "categories_tenant_id_slug_unique") {
-          throw new HttpError(409, "Category already exist")
+          throw new HttpError(409, "Category already exist");
         }
       }
     }
@@ -80,6 +80,9 @@ export class InventoryService {
           category: {
             columns: { id: true, name: true },
           },
+          unit: {
+            columns: { symbol: true },
+          },
         },
         limit,
         offset,
@@ -96,6 +99,7 @@ export class InventoryService {
       cost: product.cost,
       description: product.description,
       stock: Number(product.stock),
+      unit: product.unit?.symbol,
       category: {
         id: product.category.id,
         name: product.category.name,
@@ -115,20 +119,21 @@ export class InventoryService {
     };
   }
 
-  static async getProductDetail(db: DbClient, tenantId: string, productId: Product["id"]) {
+  static async getProductDetail(
+    db: DbClient,
+    tenantId: string,
+    productId: Product["id"]
+  ) {
     const result = await db.query.products.findFirst({
-      where: and(
-        eq(products.id, productId),
-        eq(products.tenantId, tenantId)
-      ),
+      where: and(eq(products.id, productId), eq(products.tenantId, tenantId)),
       with: {
         category: {
-          columns: {id: true, name: true}
-        }
-      }
-    })
+          columns: { id: true, name: true },
+        },
+      },
+    });
     if (!result) {
-      throw new HttpError(400, "Product not existed.")
+      throw new HttpError(400, "Product not existed.");
     }
 
     const product = {
@@ -137,14 +142,14 @@ export class InventoryService {
       code: result.code,
       category: {
         id: result.category.id,
-        name: result.category.name
+        name: result.category.name,
       },
       price: result.price,
       cost: result.cost,
-      description: result.description
-    }
+      description: result.description,
+    };
 
-    return product
+    return product;
   }
 
   static async getProductsForCashier(
@@ -155,12 +160,9 @@ export class InventoryService {
     const condition = [eq(products.tenantId, tenantId)];
 
     if (search) {
-        condition.push(
-            or(
-              ilike(products.name, `%${search}%`),
-              eq(products.code, search)
-            )!
-          );
+      condition.push(
+        or(ilike(products.name, `%${search}%`), eq(products.code, search))!
+      );
     }
 
     return await db.query.products.findMany({

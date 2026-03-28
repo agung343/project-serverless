@@ -1,6 +1,6 @@
 {
-  "id": "e2de203b-43d3-4a91-997c-4fa3c4fbb1cb",
-  "prevId": "170d9a02-56e2-4d74-a429-d57250d60cb0",
+  "id": "e95df896-bd2c-4886-9319-841007977fa2",
+  "prevId": "e2de203b-43d3-4a91-997c-4fa3c4fbb1cb",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -225,7 +225,7 @@
         },
         "unit_id": {
           "name": "unit_id",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
@@ -459,9 +459,20 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "units_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
         },
         "name": {
           "name": "name",

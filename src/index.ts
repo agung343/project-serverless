@@ -7,6 +7,7 @@ import tenants from "./routes/tenants.route"
 import auth from "./routes/auth.route";
 import users from "./routes/users.route";
 import inventory from "./routes/inventory.route"
+import expense from "./routes/expenses.route";
 
 dotenv.config()
 const app = new Hono<{Bindings: CloudflareBindings}>()
@@ -29,6 +30,7 @@ app.route("/tenants", tenants)
 app.route("/auth", auth)
 app.route("/users", users)
 app.route("/inventory", inventory)
+app.route("/expenses", expense)
 
 app.onError((err, c) => {
   if (err instanceof HttpError) {

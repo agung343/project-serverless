@@ -27,15 +27,9 @@ export const products = pgTable(
     stock: numeric("stock", { precision: 10, scale: 3 }).notNull().default("0"),
     sold: integer("sold").notNull().default(0),
     description: text("description"),
-    categoryId: text("category_id")
-      .notNull()
-      .references(() => categories.id),
-    unitId: integer("unit_id")
-      .notNull()
-      .references(() => units.id),
-    tenantId: text("tenant_id")
-      .notNull()
-      .references(() => tenants.id, { onDelete: "cascade" }),
+    categoryId: text("category_id").notNull().references(() => categories.id),
+    tenantId: text("tenant_id").notNull().references(() => tenants.id, {onDelete: "cascade"}),
+    unitId: integer("unit_id").references(() => units.id),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()
@@ -53,26 +47,26 @@ export const products = pgTable(
     check("stock_positive", sql`${table.stock} >= 0`),
 
     foreignKey({
-      columns: [table.categoryId, table.tenantId],
-      foreignColumns: [categories.id, categories.tenantId],
-    }),
-  ]
-);
+        columns: [table.categoryId, table.tenantId],
+        foreignColumns: [categories.id, categories.tenantId]
+    })
+])
 
-export const productsRelations = relations(products, ({ one }) => ({
-  category: one(categories, {
-    fields: [products.categoryId],
-    references: [categories.id],
-  }),
-  tenant: one(tenants, {
-    fields: [products.tenantId],
-    references: [tenants.id],
-  }),
-  unit: one(units, {
-    fields: [products.unitId],
-    references: [units.id], // Ensure proper reference to units.id
-  }),
-}));
+export const productsRelations = relations(products, ({one}) => ({
+    category: one(categories, {
+        fields: [products.categoryId],
+        references: [categories.id]
+    }),
+    tenant: one(tenants, {
+        fields: [products.tenantId],
+        references: [tenants.id]
+    }),
+    unit: one(units, {
+        fields: [products.unitId],
+        references: [units.id]
+    })
+}))
+
 
 export type Product = typeof products.$inferSelect;
 export type NewProduct = typeof products.$inferInsert;

@@ -20,7 +20,7 @@ users.get("/", verifyToken, async (c) => {
 });
 
 users.post(
-  "/create-new",
+  "/",
   verifyToken,
   verifyRole("OWNER", "ADMIN"),
   validator("json", (value) => {

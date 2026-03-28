@@ -12,7 +12,7 @@ export const CreateNewProductSchema = z.object({
     .toUpperCase(),
   price: z.number().min(0),
   cost: z.number().min(0),
-  unitId: z.number().min(1, "Unit is required"),
+  unitId: z.number().int().optional(),
   description: z.string().optional(),
   categoryId: z.cuid2(),
 });
