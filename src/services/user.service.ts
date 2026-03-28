@@ -7,7 +7,7 @@ import {
 } from "../validators/user.schema";
 import { HttpError } from "../middlewares/HttpError";
 import { type DbClient } from "../db";
-import { DatabaseError } from "@neondatabase/serverless";
+import { DatabaseError } from "pg";
 
 export class UsersService {
   static async getUsers(db: DbClient, tenantId: User["tenantId"]) {

@@ -3,17 +3,18 @@ import {
   expenseOperational,
   type ExpenseOperational,
 } from "../db/schema/expense-operational";
+import { expensePurchase, type ExpensePurchase } from "../db/schema/expense-purchase";
 import { type DbClient } from "../db";
 import type { ExpenseOperationalPayload } from "../validators/expense.schema";
 import { HttpError } from "../middlewares/HttpError";
-import { type ExpenseOperationalQuery } from "../validators/expense.schema";
-import { DatabaseError } from "@neondatabase/serverless";
+import { type ExpenseQuery } from "../validators/expense.schema";
+import { DatabaseError } from "pg";
 
 export class ExpenseService {
   static async getOperationalExpenses(
     db: DbClient,
     tenantId: ExpenseOperational["tenantId"],
-    query: ExpenseOperationalQuery
+    query: ExpenseQuery
   ) {
     const { search, page = 1, limit = 25, startDate, endDate } = query;
     const offset = (page - 1) * limit;
@@ -84,6 +85,33 @@ export class ExpenseService {
       };
     } catch (error) {
       throw new HttpError(500, "Failed to create operational expense");
+    }
+  }
+
+  static async getPurchaseExpenses(db: DbClient, tenantId: ExpensePurchase["tenantId"], query: ExpenseQuery) {
+    try {
+      const { search, page = 1, limit = 25, startDate, endDate } = query;
+      const offset = (page - 1) * limit;
+
+      const condition = [eq(expensePurchase.tenantId, tenantId)];
+      if (search) {
+        condition.push(ilike(expensePurchase.invoiceNumber, `%${search}%`));
+      }
+
+      if (startDate) {
+        condition.push(gte(expensePurchase.date, new Date(startDate)));
+      }
+
+      if (endDate) {
+        condition.push(lte(expensePurchase.date, new Date(endDate)));
+      }
+
+      const where = and(...condition);
+    } catch (error) {
+      if (error instanceof DatabaseError) {
+        throw new HttpError(500, "Failed to fetch purchase expenses");
+      }
+      throw error;
     }
   }
 }

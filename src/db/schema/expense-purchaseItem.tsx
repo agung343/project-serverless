@@ -1,4 +1,4 @@
-import {pgTable, text, numeric, timestamp, index, check} from "drizzle-orm/pg-core";
+import {pgTable, text, numeric, timestamp, index, check, integer} from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm"
 import { createId } from "@paralleldrive/cuid2";
 import { expensePurchase } from "./expense-purchase";
@@ -9,7 +9,7 @@ export const expensePurchaseItems = pgTable("expense_purchase_items", {
     purchaseId: text("purchase_id").notNull().references(() => expensePurchase.id, {onDelete: "cascade"}),
     name: text("name").notNull(),
     quantity: numeric("quantity", {precision: 10, scale: 3}).notNull(),
-    unitId: text("unit_id").notNull().references(() => units.id, {onDelete: "restrict"}),
+    unitId: integer("unit_id").notNull().references(() => units.id, {onDelete: "restrict"}),
     unitPrice: numeric("unit_price", {precision: 12, scale:2}).notNull(),
     total: numeric("total", {precision: 12, scale:2}).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
