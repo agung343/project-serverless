@@ -1,4 +1,4 @@
-import { numeric, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { createId } from "@paralleldrive/cuid2";
 import { relations } from "drizzle-orm";
 import { tenants } from "./tenants";
@@ -6,7 +6,7 @@ import { tenants } from "./tenants";
 export const expenseOperational = pgTable("expense_operational", {
     id: text("id").primaryKey().$defaultFn(createId),
     name: text("name").notNull(),
-    amount: numeric("amount").notNull().default("0"),
+    amount: integer("amount").notNull(),
     description: text("description"),
     tenantId: text("tenant_id").notNull().references(() => tenants.id, {onDelete: "cascade"}),
     createdAt: timestamp("created_at").defaultNow().notNull(),

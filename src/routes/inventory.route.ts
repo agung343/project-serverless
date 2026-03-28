@@ -70,7 +70,7 @@ inventory.get(
 )
 
 inventory.post(
-  "/new-category",
+  "/category",
   verifyToken,
   validator("json", (value) => {
     const parsed = CreateNewCategorySchema.safeParse(value);
@@ -89,12 +89,12 @@ inventory.post(
       payload,
       tenantId
     );
-    return c.json({ message: `${result.category} has been added` }, 201);
+    return c.json({ message: `${result!.category} has been added` }, 201);
   }
 );
 
 inventory.post(
-  "/new-product",
+  "/product",
   verifyToken,
   validator("json", (value) => {
     const parsed = CreateNewProductSchema.safeParse(value);
@@ -118,7 +118,7 @@ inventory.post(
 );
 
 inventory.patch(
-  "/edit/:productId",
+  "/:productId",
   verifyToken,
   validator("json", (value) => {
     const parsed = UpdateProductSchema.safeParse(value);

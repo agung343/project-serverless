@@ -12,16 +12,6 @@ CREATE TABLE "units" (
 -- Re-add unit_id as integer on products (nullable for now)
 ALTER TABLE "products" ADD COLUMN "unit_id" integer;
 
--- Seed units
-INSERT INTO units (name, symbol) VALUES
-('Piece', 'pcs'),
-('Kilogram', 'kg'),
-('Gram', 'g'),
-('Liter', 'ltr'),
-('Milliliter', 'ml'),
-('Box', 'box'),
-('Dozen', 'doz');
-
 -- Backfill existing products
 UPDATE "products" SET "unit_id" = 1;
 
