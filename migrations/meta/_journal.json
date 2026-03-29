@@ -50,6 +50,20 @@
       "when": 1774616944749,
       "tag": "0006_absurd_spot",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1774692157932,
+      "tag": "0007_flippant_proemial_gods",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1774821901121,
+      "tag": "0008_square_black_widow",
+      "breakpoints": true
     }
   ]
 }

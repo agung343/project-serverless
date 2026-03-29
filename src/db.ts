@@ -1,6 +1,3 @@
-// import { drizzle } from "drizzle-orm/neon-http"
-// import { neon} from "@neondatabase/serverless"
-
 import { drizzle } from "drizzle-orm/neon-serverless";
 import { Pool } from "@neondatabase/serverless";
 
@@ -11,6 +8,9 @@ import * as categorySchema from "./db/schema/categories"
 import * as productSchema from "./db/schema/products"
 import * as unitSchema from "./db/schema/units"
 import * as expenseOperationalSchema from "./db/schema/expense-operational"
+import * as supplierSchema from "./db/schema/supplier"
+import * as expensePurchaseSchema from "./db/schema/expense-purchase"
+import * as expensePurchaseItemSchema from "./db/schema/expense-purchaseItem"
 
 const schema = {
     ...tenantSchema,
@@ -19,7 +19,10 @@ const schema = {
     ...categorySchema,
     ...productSchema,
     ...unitSchema,
-    ...expenseOperationalSchema
+    ...expenseOperationalSchema,
+    ...supplierSchema,
+    ...expensePurchaseSchema,
+    ...expensePurchaseItemSchema
 }
 
 

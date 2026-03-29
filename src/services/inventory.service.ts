@@ -98,7 +98,7 @@ export class InventoryService {
       price: product.price,
       cost: product.cost,
       description: product.description,
-      stock: Number(product.stock),
+      stock: product.stock,
       unit: product.unit?.symbol,
       category: {
         id: product.category.id,

@@ -13,7 +13,7 @@ export const products = pgTable("products", {
     price: integer("price").notNull().default(0),
     cost: integer("cost").notNull().default(0),
     stock: numeric("stock", {precision: 10, scale: 3}).notNull().default("0"),
-    sold: integer("sold").notNull().default(0),
+    sold: numeric("sold", {precision: 10, scale:3}).notNull().default("0"),
     description: text("description"),
     categoryId: text("category_id").notNull().references(() => categories.id),
     tenantId: text("tenant_id").notNull().references(() => tenants.id, {onDelete: "cascade"}),
