@@ -11,7 +11,6 @@ export const expensePurchaseItems = pgTable("expense_purchase_items", {
     name: text("name"),
     productId: text("product_id").references(() => products.id, {onDelete: "restrict"}),
     quantity: numeric("quantity", {precision: 10, scale: 3}).notNull(),
-    unitId: integer("unit_id").notNull().references(() => units.id, {onDelete: "restrict"}),
     unitPrice: numeric("unit_price", {precision: 12, scale:2}).notNull(),
     total: numeric("total", {precision: 12, scale:2}).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -29,10 +28,6 @@ export const expensePurchaseItemsRelations = relations(expensePurchaseItems, ({o
         fields: [expensePurchaseItems.purchaseId],
         references: [expensePurchase.id]
     }),
-    unit: one(units, {
-        fields: [expensePurchaseItems.unitId],
-        references: [units.id]
-    })
 }))
 
 export type ExpensePurchaseItem = typeof expensePurchaseItems.$inferSelect;
