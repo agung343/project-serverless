@@ -7,7 +7,7 @@ import { connectDB } from "../db";
 import { ExpenseService } from "../services/expense.service";
 import {
   CreateNewExpenseOperationalSchema,
-  ExpenseOperationalQuerySchema
+  ExpenseQuerySchema
 } from "../validators/expense.schema";
 import { HttpError } from "../middlewares/HttpError";
 
@@ -16,7 +16,7 @@ const expense = createApp();
 expense.get(
   "/operational",
   verifyToken,
-  zValidator("query", ExpenseOperationalQuerySchema),
+  zValidator("query", ExpenseQuerySchema),
   async (c) => {
     const { tenantId } = c.get("user");
     const db = connectDB(c.env.DATABASE_URL);
