@@ -9,6 +9,7 @@ import {
   CreateNewCategorySchema,
   CreateNewProductSchema,
   UpdateProductSchema,
+  AdjustStockSchema
 } from "../validators/inventory.schema";
 import { HttpError } from "../middlewares/HttpError";
 
@@ -116,6 +117,21 @@ inventory.post(
     return c.json(result, 201);
   }
 );
+
+inventory.post("/adjust/:productId", verifyToken, validator("json", (value) => {
+  const parsed = AdjustStockSchema.safeParse(value)
+  if (!parsed.success) {
+    const flatten = z.flattenError(parsed.error)
+    throw new HttpError(422, "Validation error", flatten.fieldErrors)
+  }
+  return parsed.data
+}), async (c) => {
+  const {tenantId} = c.get("user")
+  const db = connectDB(c.env.DATABASE_URL)
+  const payload = c.req.valid("json")
+  const result = await InventoryService.AdjustStock(db, tenantId, payload)
+  return c.json(result, 201)
+})
 
 inventory.patch(
   "/:productId",

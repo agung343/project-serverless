@@ -30,6 +30,14 @@ export const UpdateProductSchema = z.object({
   categoryId: z.cuid2(),
 });
 
+export const AdjustStockSchema = z.object({
+  productId: z.cuid2(),
+  quantity: z.coerce.number().min(0, "Stock can not be negative"),
+  note: z.string().min(1, "Note are required"),
+  checkBy: z.string().min(1, "user unauthorized")
+})
+
 export type CategoryPayload = z.infer<typeof CreateNewCategorySchema>
 export type ProductPayload = z.infer<typeof CreateNewProductSchema>
 export type UpdateProductPayload = z.infer<typeof UpdateProductSchema>
+export type AdjustStockPayload = z.infer<typeof AdjustStockSchema>

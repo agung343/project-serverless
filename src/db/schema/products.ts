@@ -15,6 +15,7 @@ import { categories } from "./categories";
 import { tenants } from "./tenants";
 import { units } from "./units";
 import { expensePurchaseItems } from "./expense-purchaseItem";
+import { orderItems } from "./orderItems";
 import { stockMovement } from "./stock-movement";
 
 export const products = pgTable(
@@ -68,9 +69,9 @@ export const productsRelations = relations(products, ({one, many}) => ({
         references: [units.id]
     }),
     purchaseItems: many(expensePurchaseItems),
+    orderItems: many(orderItems),
     stockMovements: many(stockMovement)
 }))
-
 
 export type Product = typeof products.$inferSelect;
 export type NewProduct = typeof products.$inferInsert;

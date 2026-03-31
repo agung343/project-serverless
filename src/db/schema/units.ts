@@ -10,6 +10,6 @@ export const units = pgTable("units", {
 })
 
 export const unitsRelations = relations(units, ({many}) => ({
-    products: many(products)
+    products: many(products),
 }))
 

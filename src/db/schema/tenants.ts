@@ -9,6 +9,7 @@ import { expenseOperational } from "./expense-operational";
 import { suppliers } from "./supplier";
 import {expensePurchase} from "./expense-purchase";
 import { stockMovement } from "./stock-movement";
+import { orders } from "./orders";
 
 export const tenants = pgTable("tenants", {
     id: text("id").primaryKey().$defaultFn(createId),
@@ -29,6 +30,7 @@ export const tenantsRelation = relations(tenants, ({many}) => ({
     expenseOperational: many(expenseOperational),
     suppliers: many(suppliers),
     expensePurchases: many(expensePurchase),
+    orders: many(orders),
     stockMovements: many(stockMovement)
 }))
 

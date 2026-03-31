@@ -1,13 +1,15 @@
 import { eq, and, ne, ilike, count, or } from "drizzle-orm";
 import slugify from "slugify";
-import { DatabaseError } from "@neondatabase/serverless";
+import { DatabaseError } from "pg";
 import { categories, type Category } from "../db/schema/categories";
 import { products, type Product } from "../db/schema/products";
+import { stockMovement, type StockMovement } from "../db/schema/stock-movement";
 import { type DbClient } from "../db";
 import type {
   CategoryPayload,
   ProductPayload,
   UpdateProductPayload,
+  AdjustStockPayload,
 } from "../validators/inventory.schema";
 import { HttpError } from "../middlewares/HttpError";
 import { isDbError } from "../lib/db-error";
@@ -98,7 +100,7 @@ export class InventoryService {
       price: product.price,
       cost: product.cost,
       description: product.description,
-      stock: Number(product.stock),
+      stock: product.stock,
       unit: product.unit?.symbol,
       category: {
         id: product.category.id,
@@ -270,6 +272,42 @@ export class InventoryService {
         }
       }
       throw error;
+    }
+  }
+
+  static async AdjustStock(
+    db: DbClient,
+    tenantId: StockMovement["tenantId"],
+    payload: AdjustStockPayload
+  ) {
+    try {
+      await db.transaction(async (tx) => {
+        const [adjustProduct] = await tx.insert(stockMovement).values({
+          ...payload,
+          quantity: String(payload.quantity),
+          tenantId,
+          type: "ADJUSTMENT"
+        }).returning()
+
+        const [updatedProduct] = await tx.update(products).set({
+          stock: adjustProduct.quantity
+        }).where(
+          and(
+            eq(products.id, payload.productId),
+            eq(products.tenantId, tenantId)
+          )
+        ).returning()
+
+        return updatedProduct
+      })
+
+      return {
+        message: `${this.updateProduct.name} has been adjusted`
+      }
+      
+    } catch (error) {
+      if (error instanceof HttpError) throw error;
+      throw new HttpError(500, "Failed to adjust stock");
     }
   }
 }
