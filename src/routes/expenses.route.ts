@@ -7,7 +7,8 @@ import { connectDB } from "../db";
 import { ExpenseService } from "../services/expense.service";
 import {
   CreateNewExpenseOperationalSchema,
-  ExpenseOperationalQuerySchema
+  ExpenseQuerySchema,
+  CreateNewExpensePurchaseSchema
 } from "../validators/expense.schema";
 import { HttpError } from "../middlewares/HttpError";
 
@@ -16,7 +17,7 @@ const expense = createApp();
 expense.get(
   "/operational",
   verifyToken,
-  zValidator("query", ExpenseOperationalQuerySchema),
+  zValidator("query", ExpenseQuerySchema),
   async (c) => {
     const { tenantId } = c.get("user");
     const db = connectDB(c.env.DATABASE_URL);
@@ -26,9 +27,17 @@ expense.get(
       tenantId,
       query
     );
-    return c.json(result);
+    return c.json(result, 200);
   }
 );
+
+expense.get("/purchase", verifyToken, zValidator("query", ExpenseQuerySchema), async (c) => {
+  const {tenantId} = c.get("user")
+  const db = connectDB(c.env.DATABASE_URL)
+  const query = c.req.valid("query")
+  const result = await ExpenseService.getPurchaseExpenses(db, tenantId, query)
+  return c.json(result, 200)
+})
 
 expense.post(
   "/operational",
@@ -50,8 +59,24 @@ expense.post(
       payload,
       tenantId
     );
-    return c.json(result);
+    return c.json(result, 201);
   }
 );
+
+expense.post("/purchase", verifyToken, validator("json", (value) => {
+  const parsed = CreateNewExpensePurchaseSchema.safeParse(value)
+  if (!parsed.success) {
+    const flatten = z.flattenError(parsed.error)
+    throw new HttpError(422, "Validation failed", flatten.fieldErrors)
+  }
+  return parsed.data
+}), async (c) => {
+  const {tenantId} = c.get("user")
+  const db = connectDB(c.env.DATABASE_URL)
+  const payload = c.req.valid("json")
+  const result = await ExpenseService.createNewExpensePurchase(db, tenantId, payload)
+  return c.json(result, 201)
+})
+
 
 export default expense;

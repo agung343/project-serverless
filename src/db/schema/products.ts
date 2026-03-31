@@ -14,6 +14,8 @@ import { relations, sql } from "drizzle-orm";
 import { categories } from "./categories";
 import { tenants } from "./tenants";
 import { units } from "./units";
+import { expensePurchaseItems } from "./expense-purchaseItem";
+import { stockMovement } from "./stock-movement";
 
 export const products = pgTable(
   "products",
@@ -25,7 +27,7 @@ export const products = pgTable(
     price: integer("price").notNull().default(0),
     cost: integer("cost").notNull().default(0),
     stock: numeric("stock", { precision: 10, scale: 3 }).notNull().default("0"),
-    sold: integer("sold").notNull().default(0),
+    sold: numeric("sold", {precision: 12, scale:3}).notNull().default("0"),
     description: text("description"),
     categoryId: text("category_id").notNull().references(() => categories.id),
     tenantId: text("tenant_id").notNull().references(() => tenants.id, {onDelete: "cascade"}),
@@ -52,7 +54,7 @@ export const products = pgTable(
     })
 ])
 
-export const productsRelations = relations(products, ({one}) => ({
+export const productsRelations = relations(products, ({one, many}) => ({
     category: one(categories, {
         fields: [products.categoryId],
         references: [categories.id]
@@ -64,7 +66,9 @@ export const productsRelations = relations(products, ({one}) => ({
     unit: one(units, {
         fields: [products.unitId],
         references: [units.id]
-    })
+    }),
+    purchaseItems: many(expensePurchaseItems),
+    stockMovements: many(stockMovement)
 }))
 
 

@@ -1,3 +1,5 @@
+// change to drizzle-orm/neon-serverless and @neondatabase/serverless
+
 import { drizzle  } from "drizzle-orm/node-postgres"
 import { Pool} from "pg"
 
@@ -11,6 +13,7 @@ import * as supplierSchema from "./db/schema/supplier"
 import * as expenseOperationalSchema from "./db/schema/expense-operational"
 import * as expensePurchaseSchema from "./db/schema/expense-purchase"
 import * as expensePurchaseItemSchema from "./db/schema/expense-purchaseItem"
+import * as stockMovement from "./db/schema/stock-movement"
 
 const schema = {
     ...tenantSchema,
@@ -22,7 +25,8 @@ const schema = {
     ...supplierSchema,
     ...expenseOperationalSchema,
     ...expensePurchaseSchema,
-    ...expensePurchaseItemSchema
+    ...expensePurchaseItemSchema,
+    ...stockMovement
 }
 
 export const connectDB = (connectionString: string) => {

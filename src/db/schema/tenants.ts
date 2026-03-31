@@ -8,6 +8,7 @@ import { categories } from "./categories";
 import { expenseOperational } from "./expense-operational";
 import { suppliers } from "./supplier";
 import {expensePurchase} from "./expense-purchase";
+import { stockMovement } from "./stock-movement";
 
 export const tenants = pgTable("tenants", {
     id: text("id").primaryKey().$defaultFn(createId),
@@ -27,7 +28,8 @@ export const tenantsRelation = relations(tenants, ({many}) => ({
     products: many(products),
     expenseOperational: many(expenseOperational),
     suppliers: many(suppliers),
-    expensePurchases: many(expensePurchase)
+    expensePurchases: many(expensePurchase),
+    stockMovements: many(stockMovement)
 }))
 
 export type Tenant = typeof tenants.$inferSelect;

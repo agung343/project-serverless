@@ -1,4 +1,4 @@
-import {pgTable, pgEnum, text, numeric, timestamp, boolean, index, check} from "drizzle-orm/pg-core";
+import {pgTable, pgEnum, text, numeric, timestamp, boolean, index, check, foreignKey} from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm"
 import { suppliers } from "./supplier";
 import { tenants } from "./tenants";
@@ -33,7 +33,12 @@ export const expensePurchase = pgTable("expense_purchase", {
 
     check("paid_not_exceed_total", sql`${table.paid} <= ${table.totalAmount}`),
     check("total_amount_positive", sql`${table.totalAmount} >= 0`),
-    check("paid_positive", sql`${table.paid} >= 0`)
+    check("paid_positive", sql`${table.paid} >= 0`),
+
+    foreignKey({
+        columns: [table.supplierId, table.tenantId],
+        foreignColumns: [suppliers.id, suppliers.tenantId]
+    })
 ])  
 
 export const expensePurchaseRelations = relations(expensePurchase, ({one,many}) => ({
