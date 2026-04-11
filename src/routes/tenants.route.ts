@@ -2,7 +2,7 @@ import { createApp } from "../lib/createApp";
 import { validator } from "hono/validator";
 import { TenantService } from "../services/tenant.service";
 import { HttpError } from "../middlewares/HttpError";
-import { registerTenantSchema } from "../validators/index";
+import { registerTenantSchema } from "../validators/tenant.schema";
 import { connectDB } from "../db";
 
 const tenants = createApp();

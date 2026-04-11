@@ -11,6 +11,9 @@ import * as expenseOperationalSchema from "./db/schema/expense-operational"
 import * as supplierSchema from "./db/schema/supplier"
 import * as expensePurchaseSchema from "./db/schema/expense-purchase"
 import * as expensePurchaseItemSchema from "./db/schema/expense-purchaseItem"
+import * as ordersSchema from "./db/schema/orders"
+import * as orderItemsSchema from "./db/schema/orderItems"
+import * as stockMovementSchema from "./db/schema/stock-movement";
 
 const schema = {
     ...tenantSchema,
@@ -22,7 +25,10 @@ const schema = {
     ...expenseOperationalSchema,
     ...supplierSchema,
     ...expensePurchaseSchema,
-    ...expensePurchaseItemSchema
+    ...expensePurchaseItemSchema,
+    ...ordersSchema,
+    ...orderItemsSchema,
+    ...stockMovementSchema
 }
 
 

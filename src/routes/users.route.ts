@@ -1,5 +1,6 @@
 import { createApp } from "../lib/createApp";
-import { validator } from "hono/validator";
+import { z } from "zod"
+import { zValidator } from "@hono/zod-validator";
 import { verifyToken } from "../middlewares/verifyToken";
 import { verifyRole } from "../middlewares/verifyRole";
 import { UsersService } from "../services/user.service";
@@ -23,13 +24,11 @@ users.post(
   "/",
   verifyToken,
   verifyRole("OWNER", "ADMIN"),
-  validator("json", (value) => {
-    const parsed = CreateUserSchema.safeParse(value);
+  zValidator("json", CreateUserSchema, (parsed) => {
     if (!parsed.success) {
-      const fieldErrors = parsed.error.flatten().fieldErrors;
-      throw new HttpError(422, "Invalid Form Request", fieldErrors);
+      const flatten = z.flattenError(parsed.error)
+      throw new HttpError(422, "Validation error", flatten.fieldErrors)
     }
-    return parsed.data;
   }),
   async (c) => {
     const tenantId = c.get("user").tenantId;
@@ -59,13 +58,11 @@ users.put(
   "/:userId",
   verifyToken,
   verifyRole("OWNER", "ADMIN"),
-  validator("json", (value) => {
-    const parsed = UpdateUserSchema.safeParse(value);
+  zValidator("json", UpdateUserSchema, (parsed) => {
     if (!parsed.success) {
-      const fieldErrors = parsed.error.flatten().fieldErrors;
-      throw new HttpError(400, "Invalid Form Request", fieldErrors);
+      const flatten = z.flattenError(parsed.error);
+      throw new HttpError(400, "Invalid Form Request", flatten.fieldErrors);
     }
-    return parsed.data;
   }),
   async (c) => {
     const db = connectDB(c.env.DATABASE_URL);

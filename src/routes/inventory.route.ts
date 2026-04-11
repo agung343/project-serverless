@@ -6,11 +6,14 @@ import { connectDB } from "../db";
 import { verifyToken } from "../middlewares/verifyToken";
 import { InventoryService } from "../services/inventory.service";
 import {
+  ProductQuerySchema,
   CreateNewCategorySchema,
   CreateNewProductSchema,
   UpdateProductSchema,
+  AdjustStockSchema,
 } from "../validators/inventory.schema";
 import { HttpError } from "../middlewares/HttpError";
+import { verifyRole } from "../middlewares/verifyRole";
 
 const PaginationProductSchema = z.object({
   search: z.string().optional(),
@@ -58,16 +61,29 @@ inventory.get(
 );
 
 inventory.get(
-  "/product/:productId",
+  "/stock",
   verifyToken,
+  zValidator("query", ProductQuerySchema),
   async (c) => {
-    const { tenantId } = c.get("user")
-    const productId = c.req.param("productId")
+    const { tenantId } = c.get("user");
     const db = connectDB(c.env.DATABASE_URL);
-    const result = await InventoryService.getProductDetail(db, tenantId, productId)
-    return c.json(result, 200)
+    const query = c.req.valid("query");
+    const result = await InventoryService.getStockMovement(db, tenantId, query);
+    return c.json(result, 200);
   }
-)
+);
+
+inventory.get("/product/:productId", verifyToken, async (c) => {
+  const { tenantId } = c.get("user");
+  const productId = c.req.param("productId");
+  const db = connectDB(c.env.DATABASE_URL);
+  const result = await InventoryService.getProductDetail(
+    db,
+    tenantId,
+    productId
+  );
+  return c.json(result, 200);
+});
 
 inventory.post(
   "/category",
@@ -114,6 +130,32 @@ inventory.post(
       tenantId
     );
     return c.json(result, 201);
+  }
+);
+
+inventory.post(
+  "/stock/:productId",
+  verifyToken,
+  verifyRole("OWNER", "ADMIN"),
+  zValidator("json", AdjustStockSchema, (parsed) => {
+    if (!parsed.success) {
+      const flatten = z.flattenError(parsed.error);
+      throw new HttpError(422, "Validation error", flatten.fieldErrors);
+    }
+  }),
+  async (c) => {
+    const user = c.get("user");
+    const { username, tenantId } = user;
+    const productId = c.req.param("productId");
+    const db = connectDB(c.env.DATABASE_URL);
+    const payload = c.req.valid("json");
+    const result = await InventoryService.adjustStock(
+      db,
+      username,
+      { id: productId, tenantId },
+      payload
+    );
+    return c.json(result, 200);
   }
 );
 

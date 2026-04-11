@@ -1,4 +1,3 @@
-import { totalmem } from "node:os";
 import { z } from "zod";
 
 export const ExpenseQuerySchema = z.object({

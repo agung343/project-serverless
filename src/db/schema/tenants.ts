@@ -6,6 +6,10 @@ import { invoiceCounters } from "./invoiceCounters";
 import { products } from "./products";
 import { categories } from "./categories";
 import { expenseOperational } from "./expense-operational";
+import { suppliers } from "./supplier";
+import {expensePurchase} from "./expense-purchase";
+import { stockMovement } from "./stock-movement";
+import { orders } from "./orders";
 
 export const tenants = pgTable("tenants", {
     id: text("id").primaryKey().$defaultFn(createId),
@@ -23,7 +27,11 @@ export const tenantsRelation = relations(tenants, ({many}) => ({
     invoiceCounters: many(invoiceCounters),
     categories: many(categories),
     products: many(products),
-    expenseOperational: many(expenseOperational)
+    expenseOperational: many(expenseOperational),
+    suppliers: many(suppliers),
+    expensePurchases: many(expensePurchase),
+    orders: many(orders),
+    stockMovements: many(stockMovement)
 }))
 
 export type Tenant = typeof tenants.$inferSelect;

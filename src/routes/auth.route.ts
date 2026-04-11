@@ -2,7 +2,7 @@ import { createApp } from "../lib/createApp";
 import { validator } from "hono/validator";
 import { verifyToken } from "../middlewares/verifyToken";
 import { AuthService } from "../services/auth.service";
-import { LoginSchema } from "../validators";
+import { LoginSchema } from "../validators/auth.schema";
 import { HttpError } from "../middlewares/HttpError";
 import { setCookie, deleteCookie } from "hono/cookie";
 import { connectDB } from "../db";

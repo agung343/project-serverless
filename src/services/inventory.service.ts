@@ -1,22 +1,19 @@
-import { eq, and, ne, ilike, count, or } from "drizzle-orm";
+import { eq, and, ne, ilike, gte, lte, count, or, desc } from "drizzle-orm";
 import slugify from "slugify";
 import { DatabaseError } from "@neondatabase/serverless";
 import { categories, type Category } from "../db/schema/categories";
 import { products, type Product } from "../db/schema/products";
+import { stockMovement } from "../db/schema/stock-movement";
 import { type DbClient } from "../db";
 import type {
+  ProductQuery,
   CategoryPayload,
   ProductPayload,
   UpdateProductPayload,
+  AdjustStockPayload,
 } from "../validators/inventory.schema";
 import { HttpError } from "../middlewares/HttpError";
 import { isDbError } from "../lib/db-error";
-
-export type GetProductsQuery = {
-  search?: string;
-  page?: number;
-  limit?: number;
-};
 
 export class InventoryService {
   static async getCategories(db: DbClient, tenantId: Category["tenantId"]) {
@@ -61,7 +58,7 @@ export class InventoryService {
   static async getAllProducts(
     db: DbClient,
     tenantId: string,
-    query: GetProductsQuery = {}
+    query: ProductQuery
   ) {
     const { page = 1, limit = 25, search } = query;
     const offset = (page - 1) * limit;
@@ -155,7 +152,7 @@ export class InventoryService {
   static async getProductsForCashier(
     db: DbClient,
     tenantId: string,
-    search?: string
+    search: ProductQuery["search"]
   ) {
     const condition = [eq(products.tenantId, tenantId)];
 
@@ -270,6 +267,139 @@ export class InventoryService {
         }
       }
       throw error;
+    }
+  }
+
+  static async adjustStock(
+    db: DbClient,
+    username: string,
+    product: Pick<Product, "id" | "tenantId">,
+    payload: AdjustStockPayload
+  ) {
+    const { id, tenantId } = product;
+
+    try {
+      const exist = await db.query.products.findFirst({
+        where: and(eq(products.id, id), eq(products.tenantId, tenantId)),
+        columns: {
+          name: true,
+          stock: true,
+        },
+      });
+      if (!exist) {
+        throw new HttpError(404, "Product not exist in tenant");
+      }
+
+      const updated = await db.transaction(async (tx) => {
+        const [adjusted] = await tx
+          .insert(stockMovement)
+          .values({
+            ...payload,
+            quantity: String(payload.quantity),
+            tenantId,
+            productId: id,
+            type: "ADJUSTMENT",
+            checkedBy: username,
+          })
+          .returning();
+
+        const [updated] = await tx
+          .update(products)
+          .set({
+            stock: adjusted.quantity,
+          }).
+          where(and(
+            eq(products.id, id),
+            eq(products.tenantId, tenantId)
+          ))
+          .returning();
+
+        return {
+          stock: updated.stock,
+        };
+      });
+
+      return {
+        message: `${exist.name} has been adjust to ${updated.stock}`,
+      };
+    } catch (error) {
+      if (error instanceof HttpError) throw error;
+
+      if (error instanceof DatabaseError) {
+        if (error.code === "23505") {
+          if (error.constraint === "quantity_not_zero") {
+            throw new HttpError(
+              400,
+              "Quantity must be greater or equal than 0"
+            );
+          }
+        }
+      }
+
+      throw new HttpError(500, "Failed to adjust stock.");
+    }
+  }
+
+  static async getStockMovement(
+    db: DbClient,
+    tenantId: string,
+    query: ProductQuery
+  ) {
+    try {
+      const { search, page = 1, limit = 25, startDate, endDate } = query;
+      const offset = (page - 1) * limit;
+
+      const condition = [eq(stockMovement.tenantId, tenantId)];
+      if (search) {
+        condition.push(ilike(products.name, `%${search}%`));
+      }
+      if (startDate) {
+        condition.push(gte(stockMovement.createdAt, new Date(startDate)));
+      }
+      if (endDate) {
+        condition.push(lte(stockMovement.createdAt, new Date(endDate)));
+      } else {
+        condition.push(lte(stockMovement.createdAt, new Date()));
+      }
+      const where = and(...condition);
+
+      const result = await db
+        .select({
+          id: stockMovement.id,
+          date: stockMovement.createdAt,
+          name: products.name,
+          type: stockMovement.type,
+          note: stockMovement.note,
+          quantity: stockMovement.quantity,
+          stock: products.stock,
+          referenceId: stockMovement.referenceId,
+          checked: stockMovement.checkedBy,
+        })
+        .from(stockMovement)
+        .leftJoin(products, eq(stockMovement.productId, products.id))
+        .where(where)
+        .limit(limit)
+        .offset(offset)
+        .orderBy(desc(stockMovement.createdAt));
+      const [{ total }] = await db
+        .select({ total: count() })
+        .from(stockMovement)
+        .where(where);
+
+      return {
+        products: result,
+        meta: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+          hasNextPage: page * limit < total,
+          hasPrevPage: page > 1,
+        },
+      };
+    } catch (error) {
+      if (error instanceof HttpError) throw error;
+      throw new HttpError(500, "Failed to fetch.")
     }
   }
 }

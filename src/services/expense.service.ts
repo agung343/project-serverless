@@ -31,7 +31,9 @@ export class ExpenseService {
     }
 
     if (endDate) {
-      condition.push(lte(expenseOperational.createdAt, new Date(endDate)));
+      const end = new Date(endDate)
+      end.setHours(23,59,59,999)
+      condition.push(lte(expenseOperational.createdAt, end));
     }
 
     const where = and(...condition);
