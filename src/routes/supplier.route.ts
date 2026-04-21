@@ -5,6 +5,7 @@ import { verifyToken } from "../middlewares/verifyToken";
 import { zValidator } from "@hono/zod-validator";
 import {
   SupplierQuerySchema,
+  SupplierHistoryQuerySchema,
   CreateSupplierSchema,
   UpdateSupplierSchema,
 } from "../validators/supplier.schema";
@@ -26,6 +27,43 @@ supplier.get(
     return c.json(result, 200);
   }
 );
+
+supplier.get(
+  "/select",
+  verifyToken,
+  async (c) => {
+    const {tenantId} = c.get("user")
+    const db = connectDB(c.env.DATABASE_URL)
+    const result = await SupplierService.getSuppliersSelect(db, tenantId)
+    return c.json(result,200)
+  }
+)
+
+supplier.get(
+  "/:suppId",
+  verifyToken,
+  async (c) => {
+    const {tenantId} = c.get("user")
+    const suppId = c.req.param("suppId")
+    const db = connectDB(c.env.DATABASE_URL)
+    const result = await SupplierService.getSupplierDetail(db, {id: suppId, tenantId})
+    return c.json(result, 200)
+  }
+)
+
+supplier.get(
+  "/history/:suppId",
+  verifyToken,
+  zValidator("query", SupplierHistoryQuerySchema),
+  async (c) => {
+    const {tenantId} = c.get("user")
+    const suppId = c.req.param("suppId")
+    const query = c.req.valid("query")
+    const db = connectDB(c.env.DATABASE_URL)
+    const result = await SupplierService.getSupplierHistory(db, {id: suppId, tenantId}, query)
+    return c.json(result, 200)
+  }
+)
 
 supplier.post(
   "/",

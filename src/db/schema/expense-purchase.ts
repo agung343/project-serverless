@@ -5,6 +5,12 @@ import { tenants } from "./tenants";
 import { createId } from "@paralleldrive/cuid2";
 import { expensePurchaseItems } from "./expense-purchaseItem";
 
+export const expensePurchaseStockStatusEnum = pgEnum("expense_purchase_stock_status", [
+    "PENDING",
+    "PARTIAL",
+    "STOCKED"
+])
+
 export const expensePurchaseStatusEnum = pgEnum("expense_purchase_status", [
     "DRAFT",
     "PARTIALLY_PAID",
@@ -21,6 +27,9 @@ export const expensePurchase = pgTable("expense_purchase", {
     status: expensePurchaseStatusEnum("status").default("DRAFT").notNull(),
     notes: text("notes"),
     isDeleted: boolean("is_deleted").default(false).notNull(),
+    stockStatus: expensePurchaseStockStatusEnum("stock_status").default("PARTIAL").notNull(),
+    recordedBy: text("recorded_by").notNull(),
+    deletedBy: text("deleted_by"),
     supplierId: text("supplier_id").notNull().references(() => suppliers.id, {onDelete: "restrict"}),
     tenantId: text("tenant_id").notNull().references(() => tenants.id, {onDelete: "cascade"}),
     createdAt: timestamp("created_at").defaultNow().notNull(),

@@ -10,6 +10,7 @@ import inventory from "./routes/inventory.route"
 import expense from "./routes/expenses.route";
 import orders from "./routes/order.route"
 import sales from "./routes/sales.route"
+import purchases from "./routes/purchases.route"
 import supplier from "./routes/supplier.route"
 
 dotenv.config()
@@ -36,6 +37,7 @@ app.route("/inventory", inventory)
 app.route("/expenses", expense)
 app.route("/orders", orders)
 app.route("/sales", sales)
+app.route("/purchases", purchases)
 app.route("/supplier", supplier)
 
 app.onError((err, c) => {
