@@ -93,6 +93,7 @@ export class OrderService {
               .update(products)
               .set({
                 stock: sql`${products.stock} - ${item.quantity}`,
+                sold: sql`${products.sold} + ${item.quantity}`,
               })
               .where(
                 and(
