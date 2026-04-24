@@ -91,7 +91,7 @@ auth.post(
       setCookie(c, "token", result.token, {
         httpOnly: true,
         secure: isProd ? true : false,
-        sameSite: isProd ? "Strict" : "Lax",
+        sameSite: isProd ? "None" : "Lax",
         maxAge: 60 * 60,
       });
 
