@@ -17,8 +17,19 @@ import report from "./routes/report.route"
 dotenv.config()
 const app = new Hono<{Bindings: CloudflareBindings}>()
 
+const allowedOrigin = [
+  "http://localhost:3000",
+  "http://localhost:4173",
+  process.env.CLIENT_URL
+].filter(Boolean) as string[]
+
 app.use("*", cors({
-  origin: "http://localhost:3000",
+  origin: (origin) => {
+    if (!origin || allowedOrigin.includes(origin)) {
+      return origin
+    }
+    return null
+  },
   credentials: true
 }))
 
