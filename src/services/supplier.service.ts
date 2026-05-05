@@ -22,7 +22,7 @@ export class SupplierService {
       const offset = (page - 1) * limit;
       const condition = [eq(suppliers.tenantId, tenantId)];
       if (name) {
-        condition.push(ilike(suppliers.name, `%${name}%`));
+        condition.push(ilike(suppliers.name, `${name}%`));
       }
       const where = and(...condition);
 

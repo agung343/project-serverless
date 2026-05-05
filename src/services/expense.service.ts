@@ -23,7 +23,7 @@ export class ExpenseService {
     const condition = [eq(expenseOperational.tenantId, tenantId)];
 
     if (search) {
-      condition.push(ilike(expenseOperational.name, `%${search}%`));
+      condition.push(ilike(expenseOperational.name, `${search}%`));
     }
 
     if (startDate) {

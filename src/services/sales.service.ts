@@ -33,7 +33,7 @@ export class SalesService {
       ];
 
       if (invoice) {
-        condition.push(ilike(orders.invoiceNumber, `%${invoice}%`));
+        condition.push(ilike(orders.invoiceNumber, `${invoice}%`));
       }
       if (startDate) {
         condition.push(gte(orders.date, new Date(startDate)));
@@ -313,7 +313,7 @@ export class SalesService {
 
       const condition = [eq(orders.tenantId, tenantId), eq(orders.isDeleted, true)]
       if (invoice) {
-          condition.push(ilike(orders.invoiceNumber, `%${invoice}%`))
+          condition.push(ilike(orders.invoiceNumber, `${invoice}%`))
       }
 
       const where = and(...condition)

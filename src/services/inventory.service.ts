@@ -66,7 +66,7 @@ export class InventoryService {
     const condition = [eq(products.tenantId, tenantId)];
 
     if (search) {
-      condition.push(ilike(products.name, `%${search}%`));
+      condition.push(ilike(products.name, `${search}%`));
     }
     const where = and(...condition);
 
@@ -351,7 +351,7 @@ export class InventoryService {
 
       const condition = [eq(stockMovement.tenantId, tenantId)];
       if (search) {
-        condition.push(ilike(products.name, `%${search}%`));
+        condition.push(ilike(products.name, `${search}%`));
       }
       if (startDate) {
         condition.push(gte(stockMovement.createdAt, new Date(startDate)));

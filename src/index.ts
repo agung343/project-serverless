@@ -12,6 +12,7 @@ import orders from "./routes/order.route"
 import sales from "./routes/sales.route"
 import purchases from "./routes/purchases.route"
 import supplier from "./routes/supplier.route"
+import report from "./routes/report.route"
 
 dotenv.config()
 const app = new Hono<{Bindings: CloudflareBindings}>()
@@ -38,6 +39,7 @@ app.route("/orders", orders)
 app.route("/sales", sales)
 app.route("/purchases", purchases)
 app.route("/supplier", supplier)
+app.route("/report", report)
 
 app.onError((err, c) => {
   if (err instanceof HttpError) {

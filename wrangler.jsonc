@@ -16,7 +16,7 @@
 	},
 	"compatibility_flags": [
 		"nodejs_compat"
-	]
+	],
 	/**
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
@@ -34,7 +34,11 @@
 	 * Note: Use secrets to store sensitive data.
 	 * https://developers.cloudflare.com/workers/configuration/secrets/
 	 */
-	// "vars": {  "MY_VARIABLE": "production_value" }
+	"vars": {  
+		"DATABASE_URL": "postgresql://tenant_owner:npg_MqZS6Ll3AaXt@ep-super-queen-a181r7tu-pooler.ap-southeast-1.aws.neon.tech/tenant?sslmode=require&channel_binding=require",
+		"JWT_SECRET": "qZpJruly0iDVuknGJxFqQECo6Tn47cgy60mwgY20/hY=",
+		"NODE_ENV": "production" 
+	}
 	/**
 	 * Service Bindings (communicate between multiple Workers)
 	 * https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings

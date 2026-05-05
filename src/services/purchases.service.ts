@@ -33,7 +33,7 @@ export class PurchasesService {
     ];
 
     if (invoice) {
-      condition.push(ilike(expensePurchase.invoiceNumber, `%${invoice}%`));
+      condition.push(ilike(expensePurchase.invoiceNumber, `${invoice}%`));
     }
 
     if (startDate) {
@@ -333,7 +333,7 @@ export class PurchasesService {
       ]
 
       if (product) {
-        productConditions.push(ilike(products.name, `%${product}%`))
+        productConditions.push(ilike(products.name, `${product}%`))
       }
       if (supplier) {
         supplierConditions.push(ilike(suppliers.name, `%${supplier}%`))
